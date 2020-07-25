@@ -1,38 +1,21 @@
-#!/usr/bin/env groovy
+#!groovy
 
-def sendFailureEmail() {
-    def content = "Build for branch ${env.BRANCH_NAME} Failed."
-    def info = 'Check the attached log or log into jenkins'
-    emailext(
-        mimeType: "text/html; charset=UTF-8",
-        to: "alejandrocalderonvelez@gmail.com",
-        recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: "RequesterRecipientProvider"]],
-        body: "${content}<br/>${info}<br/>",
-        subject: "Jenkins: Your build ${env.BRANCH_NAME} - Build #${env.BUILD_NUMBER} - Failed!",
-        attachLog: true,
-        attachmentsPattern: 'reports.zip'
-    )
-}
-
-node() {
-    try{
-        stage("Setup"){
-            checkout scm
-        }
-        stage("Test") {
-            withMaven(maven: 'maven', jdk: 'jdk') {
-                sh("mvn clean test -U")
+pipeline {
+    agent any
+    tools {
+        maven '3.6.0' // You need to add a maven with name "3.6.0" in the Global Tools Configuration page
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn -version'
+                sh 'mvn clean install'
             }
         }
-        stage("Build") {
-            withMaven(maven: 'maven', jdk: 'jdk') {
-                sh(" mvn clean package")
-            }
+    }
+    post {
+        always {
+            cleanWs()
         }
-    } catch(error) {
-        throw error
-		sendFailureEmail()
-    } finally {
-        cleanWs()
     }
 }
