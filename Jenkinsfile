@@ -20,12 +20,12 @@ node() {
             checkout scm
         }
         stage("Test") {
-            withMaven() {
+            withMaven(maven: 'maven', jdk: 'jdk') {
                 sh("mvn clean test -U")
             }
         }
         stage("Build") {
-            withMaven() {
+            withMaven(maven: 'maven', jdk: 'jdk') {
                 sh(" mvn clean package")
             }
         }
