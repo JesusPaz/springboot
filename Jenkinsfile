@@ -1,29 +1,38 @@
-#!groovy
+#!/usr/bin/env groovy
 
-pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn clean install'
-                sh 'mvn validate'
+def sendFailureEmail() {
+    def content = "Build for branch ${env.BRANCH_NAME} Failed."
+    def info = 'Check the attached log or log into jenkins'
+    emailext(
+        mimeType: "text/html; charset=UTF-8",
+        to: "jeherpabo@gmail.com",
+        recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: "RequesterRecipientProvider"]],
+        body: "${content}<br/>${info}<br/>",
+        subject: "Jenkins: Your build ${env.BRANCH_NAME} - Build #${env.BUILD_NUMBER} - Failed!",
+        attachLog: true,
+        attachmentsPattern: 'reports.zip'
+    )
+}
+
+node() {
+    try{
+        stage("Setup"){
+            checkout scm
+        }
+        stage("Test") {
+            withMaven() {
+                sh("mvn clean test -U")
             }
         }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
+        stage("Build") {
+            withMaven() {
+                sh(" mvn clean package")
             }
         }
-        stage('Package') {
-            steps {
-                sh 'mvn package'
-                sh 'mvn verify'
-            }
-        }
-    }
-    post {
-        always {
-            cleanWs()
-        }
+    } catch(error) {
+        throw error
+		sendFailureEmail()
+    } finally {
+        cleanWs()
     }
 }
