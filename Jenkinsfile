@@ -1,15 +1,15 @@
 #!/usr/bin/env groovy
 
 def buildDockerImage(version, snapshot) {
-    def host = "961518039473.dkr.ecr.us-east-2.amazonaws.com"
-    def repo = "sf-rampup"
-    def region = "us-east-2"
+    def host = '961518039473.dkr.ecr.us-east-2.amazonaws.com'
+    def repo = 'sf-rampup'
+    def region = 'us-east-2'
     def tag = "${version}-${snapshot}"
     def endpoint = "${host}/${repo}:${tag}"
     echo("Building docker image: ${endpoint}")
-    sh("\$(aws ecr get-login-password --region ${region}")
+    sh("aws ecr get-login-password --region ${region} | sudo docker login --username AWS --password-stdin ${host}")
     sh("docker build . -t ${endpoint}")
-    
+
     def image =  [
         version: "${version}",
         snapshot:"${snapshot}",
@@ -22,13 +22,12 @@ def buildDockerImage(version, snapshot) {
 }
 
 def copyJar() {
-    sh("cp target/demoBack*.jar docker/demoBack.jar")
+    sh('cp target/demoBack*.jar docker/demoBack.jar')
 }
 
 def getVersion() {
-    def version= sh(script:"mvn -q -Dexec.executable=echo -Dexec.args='\${project.version}' --non-recursive exec:exec | tail -1", returnStdout: true)
-    return version.replace("\n", "")
-
+    def version = sh(script:"mvn -q -Dexec.executable = echo -Dexec.args = '\${project.version}' --non-recursive exec:exec | tail -1", returnStdout: true)
+    return version.replace('\n', '')
 }
 
 def publishImage(image) {
@@ -40,34 +39,34 @@ def publishImage(image) {
 
 node() {
     def version, image
-    try{
-        stage("Setup"){
+    try {
+                stage('Setup') {
             checkout scm
             withMaven(maven: 'maven', jdk: 'jdk') {
                 version = getVersion()
             }
             echo ("${version}")
-        }
-        stage("Test") {
+                }
+        stage('Test') {
             withMaven(maven: 'maven', jdk: 'jdk') {
-                sh("mvn clean test -U")
+                sh('mvn clean test -U')
             }
         }
-        stage("Build") {
+        stage('Build') {
             withMaven(maven: 'maven', jdk: 'jdk') {
-                sh(" mvn clean package -DskipTests -U")
+                sh(' mvn clean package -DskipTests -U')
             }
         }
-        stage("Build Image") {
+        stage('Build Image') {
             copyJar()
-            dir("docker") {
+            dir('docker') {
                 image = buildDockerImage(version, env.BRANCH_NAME)
             }
         }
-        stage("Publish Image") {
+        stage('Publish Image') {
             publishImage(image)
         }
-    } catch(error) {
+    } catch (error) {
         throw error
     } finally {
         cleanWs()
