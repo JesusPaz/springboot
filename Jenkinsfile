@@ -1,9 +1,9 @@
 #!/usr/bin/env groovy
 
 def buildDockerImage(version, snapshot) {
-    def host = "629546332162.dkr.ecr.us-east-1.amazonaws.com"
-    def repo = "springboot"
-    def region = "us-east-1"
+    def host = "961518039473.dkr.ecr.us-east-2.amazonaws.com"
+    def repo = "sf-rampup"
+    def region = "us-east-2"
     def tag = "${version}-${snapshot}"
     def endpoint = "${host}/${repo}:${tag}"
     echo("Building docker image: ${endpoint}")
