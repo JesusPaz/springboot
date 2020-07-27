@@ -7,9 +7,9 @@ def buildDockerImage(version, snapshot) {
     def tag = "${version}-${snapshot}"
     def endpoint = "${host}/${repo}:${tag}"
     echo("Building docker image: ${endpoint}")
-    sh("\$(aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${host})")
-
+    sh("\$(aws ecr get-login-password --region ${region}")
     sh("docker build . -t ${endpoint}")
+    
     def image =  [
         version: "${version}",
         snapshot:"${snapshot}",
