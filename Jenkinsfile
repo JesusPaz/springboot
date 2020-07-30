@@ -47,11 +47,11 @@ node() {
             }
             echo ("${version}")
         }
-        // stage("Test") {
-        //     withMaven(maven: 'maven', jdk: 'jdk') {
-        //         sh("mvn clean test -U")
-        //     }
-        // }
+        stage("Test") {
+            withMaven(maven: 'maven', jdk: 'jdk') {
+                sh("mvn clean test -U")
+            }
+        }
         stage("Build") {
             withMaven(maven: 'maven', jdk: 'jdk') {
                 sh(" mvn clean package -DskipTests -U")
