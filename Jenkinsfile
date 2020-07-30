@@ -8,7 +8,7 @@ def buildDockerImage(version, snapshot) {
     def endpoint = "${host}/${repo}:${tag}"
     echo("Building docker image: ${endpoint}")
     sh("aws ecr get-login-password --region ${region} | sudo docker login --username AWS --password-stdin ${host}")
-    sh("docker build . -t ${endpoint}")
+    sh("sudo docker build . -t ${endpoint}")
 
     def image =  [
         version: "${version}",
