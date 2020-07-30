@@ -26,21 +26,21 @@ def copyJar() {
 }
 
 def getVersion() {
-    def version = sh(script:"mvn -q -Dexec.executable = echo -Dexec.args = '\${project.version}' --non-recursive exec:exec | tail -1", returnStdout: true)
+    def version = sh(script:"mvn -q -Dexec.executable=echo -Dexec.args='\${project.version}' --non-recursive exec:exec | tail -1", returnStdout: true)
     return version.replace('\n', '')
 }
 
 def publishImage(image) {
     sh("aws ecr batch-delete-image --repository-name=${image.repo} --image-ids imageTag=${image.tag} --region ${region}")
     echo("Pushing image: ${image.endpoint}")
-    sh("docker push ${image.endpoint}")
-    sh("docker rmi ${image.endpoint}")
+    sh("sudo docker push ${image.endpoint}")
+    sh("sudo docker rmi ${image.endpoint}")
 }
 
 node() {
     def version, image
     try {
-                stage('Setup') {
+        stage('Setup') {
             checkout scm
             withMaven(maven: 'maven', jdk: 'jdk') {
                 version = getVersion()
