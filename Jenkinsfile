@@ -31,7 +31,7 @@ def getVersion() {
 }
 
 def publishImage(image) {
-    sh("aws ecr batch-delete-image --repository-name=${image.repo} --image-ids imageTag=${image.tag} --region ${region}")
+    sh("aws ecr batch-delete-image --repository-name=${image.repo} --image-ids imageTag=${image.tag} --region us-east-2")
     echo("Pushing image: ${image.endpoint}")
     sh("sudo docker push ${image.endpoint}")
     sh("sudo docker rmi ${image.endpoint}")
@@ -39,34 +39,34 @@ def publishImage(image) {
 
 node() {
     def version, image
-    try {
-        stage('Setup') {
+    try{
+        stage("Setup"){
             checkout scm
             withMaven(maven: 'maven', jdk: 'jdk') {
                 version = getVersion()
             }
             echo ("${version}")
-                }
-        // stage('Test') {
+        }
+        // stage("Test") {
         //     withMaven(maven: 'maven', jdk: 'jdk') {
-        //         sh('mvn clean test -U')
+        //         sh("mvn clean test -U")
         //     }
         // }
-        stage('Build') {
+        stage("Build") {
             withMaven(maven: 'maven', jdk: 'jdk') {
-                sh(' mvn clean package -DskipTests -U')
+                sh(" mvn clean package -DskipTests -U")
             }
         }
-        stage('Build Image') {
+        stage("Build Image") {
             copyJar()
-            dir('docker') {
+            dir("docker") {
                 image = buildDockerImage(version, env.BRANCH_NAME)
             }
         }
-        stage('Publish Image') {
+        stage("Publish Image") {
             publishImage(image)
         }
-    } catch (error) {
+    } catch(error) {
         throw error
     } finally {
         cleanWs()
