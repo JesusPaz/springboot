@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: backend
+  template:
+    metadata:
+      labels:
+        role: backend
+    spec:
+      containers:
+        - name: springboot
+          image: 961518039473.dkr.ecr.us-east-2.amazonaws.com/sf-rampup:0.0.1-SNAPSHOT-docker
+          ports:
+            - containerPort: 8080
