@@ -1,19 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: springboot
+  name: {{ include "springboot-chart.fullname" . }}
+  labels:
+    {{- include "springboot-chart.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
   selector:
     matchLabels:
-      role: backend
+      {{- include "springboot-chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        role: backend
+        {{- include "springboot-chart.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: springboot
-          image: 961518039473.dkr.ecr.us-east-2.amazonaws.com/sf-rampup:0.0.1-SNAPSHOT-docker
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8080
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8080
+          resources:
+{{toYaml .Values.resources | indent 12 }}
