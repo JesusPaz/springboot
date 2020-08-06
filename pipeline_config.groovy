@@ -1,7 +1,7 @@
 libraries{
     merge = true 
     maven
-    docker-jenkins
+    dockerjenkins
     k8s
 }
 
