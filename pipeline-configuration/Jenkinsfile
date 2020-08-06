@@ -1,0 +1,6 @@
+setup()
+test()
+build()
+build_image()
+publish_image()
+deploy()
