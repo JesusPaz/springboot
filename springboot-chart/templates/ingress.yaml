@@ -13,11 +13,13 @@ metadata:
     {{- include "springboot-chart.labels" . | nindent 4 }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+      # kubernetes.io/ingress.class: alb
+      # alb.ingress.kubernetes.io/target-type: instance
 spec:
   rules:
     - http:
         paths:    
-          - path: {{ .Values.ingress.path  }}
+          - path: /sf_rampup
             backend:
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
