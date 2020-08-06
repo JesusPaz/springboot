@@ -1,5 +1,5 @@
 setup()
-test()
+// test()
 build()
 build_image()
 publish_image()

@@ -24,10 +24,12 @@ def buildDockerImage(version, snapshot) {
 }
 
 void call() {
-    stage('Build Image') {
-        copyJar()
-        dir('docker') {
-            image = buildDockerImage(version, env.BRANCH_NAME)
+    node() {
+        stage('Build Image') {
+            copyJar()
+            dir('docker') {
+                image = buildDockerImage(version, env.BRANCH_NAME)
+            }
         }
     }
 }

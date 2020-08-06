@@ -6,7 +6,9 @@ def publishImage(image) {
 }
 
 void call() {
-    stage('Publish Image') {
-        publishImage(image)
+    node() {
+        stage('Publish Image') {
+            publishImage(image)
+        }
     }
 }
