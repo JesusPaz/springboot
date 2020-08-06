@@ -4,11 +4,13 @@ def getVersion() {
 }
 
 void call() {
-    stage('Setup') {
-        checkout scm
-        withMaven(maven: 'maven', jdk: 'jdk') {
-            version = getVersion()
+    node() {
+        stage('Setup') {
+            checkout scm
+            withMaven(maven: 'maven', jdk: 'jdk') {
+                version = getVersion()
+            }
+            echo ("${version}")
         }
-        echo ("${version}")
     }
 }
